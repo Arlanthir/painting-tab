@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>New Tab</title>
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="newtab.css" />
+  </head>
+  <body>
+    <div id="backdrop" aria-hidden="true"></div>
+    <img id="painting" alt="" />
+
+    <figure id="info" hidden>
+      <figcaption>
+        <a id="title" target="_blank" rel="noopener"></a>
+        <span id="artist"></span>
+        <span id="date"></span>
+        <small id="copyright"></small>
+      </figcaption>
+      <button id="shuffle" type="button" title="Show another painting" aria-label="Show another painting">↻</button>
+    </figure>
+
+    <p id="status" role="status"></p>
+
+    <script src="newtab.js" type="module"></script>
+  </body>
+</html>

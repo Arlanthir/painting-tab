@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Painting Tab — A random painting in every new tab",
+  "version": "1.0.0",
+  "description": "Shows a random painting from the Louvre museum on every new tab.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["https://collections.louvre.fr/*"]
+}
