@@ -1,4 +1,4 @@
-# Painting Tab — Louvre
+# Painting Tab — A random painting in every new tab
 
 A Chrome extension that replaces the new tab page with a random painting from the
 [Louvre's collections](https://collections.louvre.fr/), with its title, artist and date.
