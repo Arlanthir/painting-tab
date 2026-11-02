@@ -87,13 +87,27 @@ function render(painting) {
   document.body.classList.add("loaded");
 }
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const fadeOutMs = () =>
+  parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--fade-out"));
+
+/**
+ * Fades the current painting out while the next image loads, then fades the new one in, so every
+ * change looks the same whether or not the image was already downloaded.
+ */
+async function display(painting) {
+  const fadingOut = document.body.classList.contains("loaded");
+  document.body.classList.remove("loaded");
+  await Promise.all([loadImage(painting.image), fadingOut && delay(fadeOutMs())]);
+  render(painting);
+}
+
 /** Shows a new painting, using the prepared one when possible. Returns it, or null on failure. */
 async function show(keys, state, prepared) {
   // A prepared painting can be the one already on screen if it was not replaced in time.
   if (prepared && prepared.key !== state.current) {
     try {
-      await loadImage(prepared.image);
-      render(prepared);
+      await display(prepared);
       state.current = prepared.key;
       state.recent = remember(state.recent, prepared.key);
       return prepared;
@@ -106,8 +120,7 @@ async function show(keys, state, prepared) {
     try {
       const painting = await findPainting(keys, state);
       state.recent = remember(state.recent, painting.key);
-      await loadImage(painting.image);
-      render(painting);
+      await display(painting);
       state.current = painting.key;
       return painting;
     } catch (err) {
@@ -161,16 +174,23 @@ async function main() {
     }
   }
 
-  async function revisit(painting) {
-    await loadImage(painting.image);
-    render(painting);
-    state.current = painting.key;
+  async function revisit(index) {
+    const painting = history[index];
+    try {
+      await display(painting);
+      position = index;
+      state.current = painting.key;
+    } catch (err) {
+      // Keep the painting that was on screen.
+      console.warn(err);
+      document.body.classList.add("loaded");
+    }
   }
 
   const forward = () =>
     navigate(async () => {
       if (position < history.length - 1) {
-        await revisit(history[++position]);
+        await revisit(position + 1);
         return;
       }
       // Wait for a painting still being prepared rather than fetching another one from scratch.
@@ -178,7 +198,6 @@ async function main() {
       // Re-read storage: other tabs may have used and replaced the prepared painting.
       const { next, recent } = await loadState();
       state.recent = recent;
-      document.body.classList.remove("loaded");
       const painting = await show(keys, state, next);
       if (painting) position = history.push(painting) - 1;
       preparing = prepareNext(keys, state);
@@ -186,7 +205,7 @@ async function main() {
 
   const back = () =>
     navigate(async () => {
-      if (position > 0) await revisit(history[--position]);
+      if (position > 0) await revisit(position - 1);
     });
 
   $("shuffle").addEventListener("click", forward);

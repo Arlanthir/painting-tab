@@ -4,6 +4,10 @@
   --fg: #f4f1ea;
   --muted: rgba(244, 241, 234, 0.7);
   --card: rgba(15, 15, 15, 0.55);
+  /* Changing paintings fades the old one out quickly, then the new one in. newtab.js reads
+     --fade-out (in ms) to know when the old painting is gone. */
+  --fade-out: 250ms;
+  --fade-in: 600ms;
 }
 
 * {
@@ -27,7 +31,7 @@ body {
   background: center / cover no-repeat;
   filter: blur(40px) brightness(0.45);
   opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: opacity var(--fade-out) ease;
 }
 
 /* The painting itself is shown whole, never cropped. */
@@ -39,13 +43,21 @@ body {
   object-fit: contain;
   padding: 3vh 3vw;
   opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: opacity var(--fade-out) ease;
   filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.6));
 }
 
+/* The caption's text fades along with the painting it describes. */
+figcaption {
+  opacity: 0;
+  transition: opacity var(--fade-out) ease;
+}
+
 body.loaded #backdrop,
-body.loaded #painting {
+body.loaded #painting,
+body.loaded figcaption {
   opacity: 1;
+  transition-duration: var(--fade-in);
 }
 
 #info {

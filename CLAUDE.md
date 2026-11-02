@@ -31,6 +31,10 @@ a random painting from the Musée du Louvre or The Met. See README.md for the us
   History is not persisted, so new tabs start empty. Navigations are serialised (`navigate`), held
   keys (`event.repeat`) and modifier combos are ignored, and Space on the focused ↻ button is left
   to the native click to avoid advancing twice.
+- Every painting change goes through `display()`: the painting, backdrop and caption text fade out
+  (`--fade-out`, 250 ms) while the next image loads, the content swaps while invisible, then fades
+  in (`--fade-in`, 600 ms). `newtab.js` reads `--fade-out` from the CSS, so change it only there.
+  A crossfade (new painting fading in on top of the old one) was tried and rolled back.
 - Chrome focuses the address bar when a new tab opens, so keys only reach the page after the user
   clicks it. Extensions can't take focus from the omnibox on a new tab override; headless
   Playwright tests don't show this because they send keys to the page directly.
