@@ -77,10 +77,13 @@ a random painting from the Musée du Louvre or The Met. See README.md for the us
 - The details card stays in the bottom-left, faded (opacity 0.35) until hovered, sizes to its text,
   and contains only the painting's details.
 - The ← (previous) and ↻ buttons sit in the bottom-right corner of the screen, outside the card:
-  subtle, no background behind them, faded until hovered. They're anchored to the screen so they
-  never move and can be clicked repeatedly without moving the mouse. ← is disabled when there is
-  no earlier painting in the tab. Before this, ↻ lived inside the card (to the right, in a column
-  on the left, then on its own row); all were replaced by this layout. A bottom-right layout with ↻ on the left was tried and reverted.
+  subtle, no background behind them, always faded (0.45). Hovering only highlights the button
+  under the pointer, not the whole area; Tab focus does brighten the area. They're anchored to the screen so they
+  never move and can be clicked repeatedly without moving the mouse. When there is no earlier
+  painting in the tab, ← fades out and disappears (not just dimmed); it fades back in when needed.
+  When not on the newest painting, ↻ crossfades to → (both glyphs are stacked in `#shuffle`, the
+  `.forward` class picks one). Before this, ↻ lived inside the card (to the right, in a column on
+  the left, then on its own row); all were replaced by this layout. A bottom-right layout with ↻ on the left was tried and reverted.
 - Keep the README up to date when behaviour or data sources change.
 - Keep this file up to date too: update it when the architecture, data sources, API behaviour or
   the user's preferences change, or when something non-obvious is discovered. Correct or remove

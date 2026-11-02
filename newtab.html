@@ -22,7 +22,11 @@
 
     <nav id="controls" aria-label="Paintings" hidden>
       <button id="previous" class="control" type="button" title="Previous painting (←)" aria-label="Previous painting" disabled>←</button>
-      <button id="shuffle" class="control" type="button" title="Show another painting (Space or →)" aria-label="Show another painting">↻</button>
+      <!-- Shows ↻ on the newest painting and → after going back; newtab.js switches them. -->
+      <button id="shuffle" class="control" type="button" title="Show another painting (Space or →)" aria-label="Show another painting">
+        <span class="icon icon-new" aria-hidden="true">↻</span>
+        <span class="icon icon-forward" aria-hidden="true">→</span>
+      </button>
     </nav>
 
     <p id="status" role="status"></p>

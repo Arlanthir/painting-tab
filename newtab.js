@@ -159,7 +159,15 @@ async function main() {
 
   const updateControls = () => {
     $("controls").hidden = position < 0;
+    // ← fades away when there is nothing to go back to (see .control:disabled).
     $("previous").disabled = position <= 0;
+    // After going back, the right-hand button moves forward through history instead of showing a
+    // new painting, so it shows → instead of ↻.
+    const behind = position < history.length - 1;
+    const shuffle = $("shuffle");
+    shuffle.classList.toggle("forward", behind);
+    shuffle.title = behind ? "Next painting (Space or →)" : "Show another painting (Space or →)";
+    shuffle.setAttribute("aria-label", behind ? "Next painting" : "Show another painting");
   };
 
   const first = await show(keys, state, state.next);

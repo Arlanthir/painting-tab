@@ -29,7 +29,8 @@ painting is fetched and its image preloaded in advance, so it appears instantly,
 new tab and when pressing ↻.
 
 Hover the caption in the bottom-left corner to see details. The buttons in the bottom-right corner
-go back to the previous painting (←) or show another one (↻).
+go back to the previous painting (←, shown only when there is one) or show another one (↻). After
+going back, ↻ turns into → and moves forward again until you reach the newest painting.
 
 Keyboard shortcuts:
 
