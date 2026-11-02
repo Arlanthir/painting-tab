@@ -28,7 +28,8 @@ a downloadable image, such as works still under copyright at the Met, are skippe
 painting is fetched and its image preloaded in advance, so it appears instantly, both in the next
 new tab and when pressing ↻.
 
-Hover the caption in the bottom-left corner to see details; ↻ shows another painting.
+Hover the caption in the bottom-left corner to see details. The buttons in the bottom-right corner
+go back to the previous painting (←) or show another one (↻).
 
 Keyboard shortcuts:
 

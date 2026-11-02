@@ -29,8 +29,9 @@ a random painting from the Musée du Louvre or The Met. See README.md for the us
 - Keyboard: Space/→ = ↻, ← = previous painting. Each tab keeps an in-memory `history` with a
   `position`; after going back, Space/→ step forward through history before showing new paintings.
   History is not persisted, so new tabs start empty. Navigations are serialised (`navigate`), held
-  keys (`event.repeat`) and modifier combos are ignored, and Space on the focused ↻ button is left
-  to the native click to avoid advancing twice.
+  keys (`event.repeat`) and modifier combos are ignored. The ← and ↻ buttons (`#previous`,
+  `#shuffle` in `#controls`) don't take focus on mouse click, so Space keeps meaning "another
+  painting" after clicking ←; Space on a button focused with Tab is left to its native click.
 - Every painting change goes through `display()`: the painting, backdrop and caption text fade out
   (`--fade-out`, 250 ms) while the next image loads, the content swaps while invisible, then fades
   in (`--fade-in`, 600 ms). `newtab.js` reads `--fade-out` from the CSS, so change it only there.
@@ -73,8 +74,13 @@ a random painting from the Musée du Louvre or The Met. See README.md for the us
 
 ## Preferences
 
-- The details box stays in the bottom-left, faded (opacity 0.35) until hovered, with ↻ to the right
-  of the text. A bottom-right layout with ↻ on the left was tried and reverted.
+- The details card stays in the bottom-left, faded (opacity 0.35) until hovered, sizes to its text,
+  and contains only the painting's details.
+- The ← (previous) and ↻ buttons sit in the bottom-right corner of the screen, outside the card:
+  subtle, no background behind them, faded until hovered. They're anchored to the screen so they
+  never move and can be clicked repeatedly without moving the mouse. ← is disabled when there is
+  no earlier painting in the tab. Before this, ↻ lived inside the card (to the right, in a column
+  on the left, then on its own row); all were replaced by this layout. A bottom-right layout with ↻ on the left was tried and reverted.
 - Keep the README up to date when behaviour or data sources change.
 - Keep this file up to date too: update it when the architecture, data sources, API behaviour or
   the user's preferences change, or when something non-obvious is discovered. Correct or remove

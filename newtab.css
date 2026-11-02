@@ -65,10 +65,8 @@ body.loaded figcaption {
   left: 20px;
   bottom: 20px;
   margin: 0;
-  max-width: min(460px, calc(100vw - 40px));
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
+  /* Leaves room for the controls in the bottom-right corner. */
+  max-width: min(460px, calc(100vw - 150px));
   padding: 12px 14px;
   border-radius: 10px;
   background: var(--card);
@@ -119,11 +117,34 @@ figcaption {
   font-size: 11px;
 }
 
-#shuffle {
-  flex: none;
-  width: 32px;
-  height: 32px;
-  border: 1px solid rgba(244, 241, 234, 0.3);
+/* Previous and ↻ sit in the bottom-right corner, anchored to the screen so they never move and can
+   be clicked repeatedly without moving the mouse. Kept subtle: no card, faded until hovered. */
+#controls {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  gap: 10px;
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+  /* Keeps the outlines readable over light paintings. */
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+}
+
+#controls[hidden] {
+  display: none;
+}
+
+#controls:hover,
+#controls:focus-within {
+  opacity: 1;
+}
+
+.control {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(244, 241, 234, 0.5);
   border-radius: 50%;
   background: transparent;
   color: var(--fg);
@@ -131,8 +152,13 @@ figcaption {
   cursor: pointer;
 }
 
-#shuffle:hover {
+.control:hover:not(:disabled) {
   background: rgba(244, 241, 234, 0.15);
+}
+
+.control:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 #status {

@@ -157,8 +157,14 @@ async function main() {
   const history = [];
   let position = -1;
 
+  const updateControls = () => {
+    $("controls").hidden = position < 0;
+    $("previous").disabled = position <= 0;
+  };
+
   const first = await show(keys, state, state.next);
   if (first) position = history.push(first) - 1;
+  updateControls();
   await refreshMetIds(state);
   let preparing = prepareNext(keys, state);
 
@@ -171,6 +177,7 @@ async function main() {
       await action();
     } finally {
       showing = false;
+      updateControls();
     }
   }
 
@@ -209,10 +216,14 @@ async function main() {
     });
 
   $("shuffle").addEventListener("click", forward);
+  $("previous").addEventListener("click", back);
+  // Clicking doesn't focus the buttons, so Space keeps meaning "another painting" afterwards
+  // instead of re-activating whichever button was clicked last.
+  $("controls").addEventListener("mousedown", (event) => event.preventDefault());
 
   document.addEventListener("keydown", (event) => {
     if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
-    // Space on the focused ↻ button already clicks it.
+    // Space on a button focused with Tab activates that button natively.
     if (event.key === " " && event.target instanceof HTMLButtonElement) return;
     if (event.key === " " || event.key === "ArrowRight") {
       event.preventDefault();

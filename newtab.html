@@ -18,8 +18,12 @@
         <span id="date"></span>
         <small id="copyright"></small>
       </figcaption>
-      <button id="shuffle" type="button" title="Show another painting (Space or →; ← goes back)" aria-label="Show another painting">↻</button>
     </figure>
+
+    <nav id="controls" aria-label="Paintings" hidden>
+      <button id="previous" class="control" type="button" title="Previous painting (←)" aria-label="Previous painting" disabled>←</button>
+      <button id="shuffle" class="control" type="button" title="Show another painting (Space or →)" aria-label="Show another painting">↻</button>
+    </nav>
 
     <p id="status" role="status"></p>
 
