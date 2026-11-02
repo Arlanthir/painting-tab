@@ -1,8 +1,8 @@
 # Painting Tab
 
 Chrome extension (Manifest V3, plain ES modules, no build step) that replaces the new tab page with
-a random painting from the Musée du Louvre, The Met or the Rijksmuseum. See README.md for the
-user-facing overview.
+a random painting from the Musée du Louvre, The Met, the Rijksmuseum or the Kunsthistorisches
+Museum Wien (KHM). See README.md for the user-facing overview.
 
 ## Files
 
@@ -11,6 +11,8 @@ user-facing overview.
 - `louvre.js`: CSV parsing of `Results.csv` and the Louvre collections API.
 - `met.js`: The Met Collection API (ID list search + object lookup).
 - `rijks.js`: Rijksmuseum data services (Linked Art search + object lookup).
+- `khm.js`: KHM paintings via Wikidata (SPARQL list + details) and Wikimedia Commons (photo
+  licence, size and resized URL).
 - `picker.js`: random choice, recent-history and `"<source>:<id>"` key helpers.
 - `Results.csv`: Louvre export. **Never edit it**; the user drops in fresh Louvre exports. Keep it
   Louvre-only; other museums' lists are fetched separately.
@@ -41,7 +43,7 @@ user-facing overview.
 - Chrome focuses the address bar when a new tab opens, so keys only reach the page after the user
   clicks it. Extensions can't take focus from the omnibox on a new tab override; headless
   Playwright tests don't show this because they send keys to the page directly.
-- Museums with API-fetched lists (`FETCHED_SOURCES`: Met, Rijksmuseum) also export `LIST_ID` and
+- Museums with API-fetched lists (`FETCHED_SOURCES`: Met, Rijksmuseum, KHM) also export `LIST_ID` and
   `fetchPaintingIds()`. Lists are cached in storage as `lists[source] = { ids, fetchedAt, listId }`
   for a week, refreshed in the background (not awaited) after the first painting is shown.
   `LIST_ID` describes the search; change it whenever a museum's filters change so caches refresh
@@ -79,6 +81,21 @@ user-facing overview.
   …"); workshop/attributed works have no `carried_out_by`. `notation` can be a single object
   instead of a list. Some titles exist only in Dutch; a few records are the backs of paintings.
   Page link: `https://www.rijksmuseum.nl/en/collection/<object number>`.
+- **KHM**: no public API (its site `khm.at/kunstwerke` is HTML only; robots.txt disallows search
+  and facet URLs; don't scrape). Not in Kulturpool (`api.kulturpool.at`, Austria's portal: open
+  API, but the KHM isn't among its data providers). Source is Wikidata instead: paintings
+  (`wdt:P31 wd:Q3305213`) in collection `wd:Q95569` with an image (`wdt:P18`), ~3,229. Per
+  painting: one SPARQL query (title en→de, creators, inception with precision, image, KHM ID
+  `P8960`) plus one Commons `imageinfo` request (licence `LicenseShortName`, size,
+  `iiurlwidth=1920` thumb). Only public-domain/CC0 photos with longer side ≥ 1200 px are used
+  (~1 in 10 skipped). Commons rounds widths to fixed steps (asking 2400 gives 3840), and serves the
+  original when it's smaller.
+- KHM links: `https://www.khm.at/de/object/<P8960>/` redirects to the right artwork; the
+  `/en/object/` form opens the wrong one or the generic "Artworks" page. ~2,344 paintings have the
+  ID; others link to their Wikidata page.
+- Wikimedia: Node's default User-Agent gets 403 from the query service (browsers are fine; send a
+  UA when testing from Node). The Commons API rate-limits bursts with 429, even ~1 request/s for a
+  while; keep it to one request per painting, never batch-check the whole list at runtime.
 - Neither the Louvre nor the Met exposes anything usable to detect nudity (checked; only free-text
   descriptions). The Louvre has no "highlight" flag; bibliography and image counts correlate with
   fame.

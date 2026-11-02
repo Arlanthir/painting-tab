@@ -17,6 +17,8 @@
     "https://collections.louvre.fr/*",
     "https://collectionapi.metmuseum.org/*",
     "https://data.rijksmuseum.nl/*",
-    "https://id.rijksmuseum.nl/*"
+    "https://id.rijksmuseum.nl/*",
+    "https://query.wikidata.org/*",
+    "https://commons.wikimedia.org/*"
   ]
 }

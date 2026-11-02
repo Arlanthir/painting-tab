@@ -1,3 +1,4 @@
+import * as khm from "./khm.js";
 import * as louvre from "./louvre.js";
 import * as met from "./met.js";
 import * as rijks from "./rijks.js";
@@ -5,9 +6,9 @@ import { parseKey, pickRandom, remember, toKeys } from "./picker.js";
 
 const MAX_ATTEMPTS = 4;
 const LIST_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
-const SOURCES = { [louvre.SOURCE]: louvre, [met.SOURCE]: met, [rijks.SOURCE]: rijks };
+const SOURCES = Object.fromEntries([louvre, met, rijks, khm].map((source) => [source.SOURCE, source]));
 // Museums whose painting lists come from their APIs and are cached, unlike the Louvre's CSV.
-const FETCHED_SOURCES = [met, rijks];
+const FETCHED_SOURCES = [met, rijks, khm];
 
 const $ = (id) => document.getElementById(id);
 const storage = globalThis.chrome?.storage?.local;

@@ -2,8 +2,10 @@
 
 A Chrome extension that replaces the new tab page with a random painting from the
 [Musée du Louvre](https://collections.louvre.fr/),
-[The Metropolitan Museum of Art](https://www.metmuseum.org/art/collection) or the
-[Rijksmuseum](https://www.rijksmuseum.nl/en/collection), with its museum, title, artist and date.
+[The Metropolitan Museum of Art](https://www.metmuseum.org/art/collection), the
+[Rijksmuseum](https://www.rijksmuseum.nl/en/collection) or the
+[Kunsthistorisches Museum Wien](https://www.khm.at/kunstwerke), with its museum, title, artist and
+date.
 
 ## Install
 
@@ -13,7 +15,7 @@ A Chrome extension that replaces the new tab page with a random painting from th
 
 ## How it works
 
-Paintings come from three lists, and each new tab picks uniformly across all of them:
+Paintings come from four lists, and each new tab picks uniformly across all of them:
 
 - **Louvre:** `Results.csv` is an export of the Louvre collections search, filtered to paintings on
   display at the Louvre. Only rows from the Département des Peintures are used (2,881 paintings).
@@ -23,11 +25,18 @@ Paintings come from three lists, and each new tab picks uniformly across all of 
   access image" filter on the Met's website.
 - **Rijksmuseum:** public-domain paintings with images (about 4,900), fetched from the
   [Rijksmuseum Search API](https://data.rijksmuseum.nl/docs/search) and cached for a week. The API
-  has no "on display" filter, so unlike the other two lists this includes works in storage.
+  has no "on display" filter, so unlike the Louvre and Met lists this includes works in storage.
+- **Kunsthistorisches Museum Wien:** the KHM has no public API, so its paintings come from
+  [Wikidata](https://www.wikidata.org/), where volunteers have catalogued the collection (about
+  3,200 paintings with a photo), with photos from [Wikimedia Commons](https://commons.wikimedia.org/).
+  Only public-domain photos at least 1,200 px on their longer side are shown. Links go to the
+  painting's page on the KHM website (in German), or to Wikidata when there is none. Like the
+  Rijksmuseum list, it includes works in storage.
 
 Each new tab skips the last 50 paintings shown and fetches the chosen painting's details and image
-from its museum's API (the Louvre's `<ark url>.json`, the Met's `/objects/<id>` or the
-Rijksmuseum's Linked Art record at `https://id.rijksmuseum.nl/<id>`). Paintings without
+from its museum's API (the Louvre's `<ark url>.json`, the Met's `/objects/<id>`, the
+Rijksmuseum's Linked Art record at `https://id.rijksmuseum.nl/<id>`, or Wikidata and Wikimedia
+Commons for the KHM). Paintings without
 a downloadable image, such as works still under copyright at the Met, are skipped. The next
 painting is fetched and its image preloaded in advance, so it appears instantly, both in the next
 new tab and when pressing ↻.
@@ -52,7 +61,8 @@ npm test   # unit tests
 ```
 
 To refresh the Louvre list, export new results from the Louvre collections search and replace
-`Results.csv`. Keep it a Louvre-only export; the Met and Rijksmuseum lists are fetched separately.
+`Results.csv`. Keep it a Louvre-only export; the other museums' lists are fetched separately.
 
 Louvre images © GrandPalaisRmn (musée du Louvre); Met images are public domain (CC0); Rijksmuseum
-images are public domain. Credits are shown with each painting.
+images are public domain; KHM photos are public-domain files on Wikimedia Commons. Credits are
+shown with each painting.
