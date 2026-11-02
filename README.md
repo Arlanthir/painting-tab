@@ -1,9 +1,9 @@
 # Painting Tab — A random painting in every new tab
 
 A Chrome extension that replaces the new tab page with a random painting from the
-[Musée du Louvre](https://collections.louvre.fr/) or
-[The Metropolitan Museum of Art](https://www.metmuseum.org/art/collection), with its museum,
-title, artist and date.
+[Musée du Louvre](https://collections.louvre.fr/),
+[The Metropolitan Museum of Art](https://www.metmuseum.org/art/collection) or the
+[Rijksmuseum](https://www.rijksmuseum.nl/en/collection), with its museum, title, artist and date.
 
 ## Install
 
@@ -13,7 +13,7 @@ title, artist and date.
 
 ## How it works
 
-Paintings come from two lists, and each new tab picks uniformly across both:
+Paintings come from three lists, and each new tab picks uniformly across all of them:
 
 - **Louvre:** `Results.csv` is an export of the Louvre collections search, filtered to paintings on
   display at the Louvre. Only rows from the Département des Peintures are used (2,881 paintings).
@@ -21,9 +21,13 @@ Paintings come from two lists, and each new tab picks uniformly across both:
   (about 1,700), fetched from [The Met Collection API](https://metmuseum.github.io/) and cached for
   a week. The open-access filter (`openAccess=true`) is undocumented but matches the "Has open
   access image" filter on the Met's website.
+- **Rijksmuseum:** public-domain paintings with images (about 4,900), fetched from the
+  [Rijksmuseum Search API](https://data.rijksmuseum.nl/docs/search) and cached for a week. The API
+  has no "on display" filter, so unlike the other two lists this includes works in storage.
 
 Each new tab skips the last 50 paintings shown and fetches the chosen painting's details and image
-from its museum's API (the Louvre's `<ark url>.json` or the Met's `/objects/<id>`). Paintings without
+from its museum's API (the Louvre's `<ark url>.json`, the Met's `/objects/<id>` or the
+Rijksmuseum's Linked Art record at `https://id.rijksmuseum.nl/<id>`). Paintings without
 a downloadable image, such as works still under copyright at the Met, are skipped. The next
 painting is fetched and its image preloaded in advance, so it appears instantly, both in the next
 new tab and when pressing ↻.
@@ -48,7 +52,7 @@ npm test   # unit tests
 ```
 
 To refresh the Louvre list, export new results from the Louvre collections search and replace
-`Results.csv`. Keep it a Louvre-only export; the Met list is fetched separately.
+`Results.csv`. Keep it a Louvre-only export; the Met and Rijksmuseum lists are fetched separately.
 
-Louvre images © GrandPalaisRmn (musée du Louvre); Met images are public domain (CC0). Credits are
-shown with each painting.
+Louvre images © GrandPalaisRmn (musée du Louvre); Met images are public domain (CC0); Rijksmuseum
+images are public domain. Credits are shown with each painting.

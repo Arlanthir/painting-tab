@@ -1,7 +1,8 @@
 # Painting Tab
 
 Chrome extension (Manifest V3, plain ES modules, no build step) that replaces the new tab page with
-a random painting from the Musée du Louvre or The Met. See README.md for the user-facing overview.
+a random painting from the Musée du Louvre, The Met or the Rijksmuseum. See README.md for the
+user-facing overview.
 
 ## Files
 
@@ -9,6 +10,7 @@ a random painting from the Musée du Louvre or The Met. See README.md for the us
   touches browser APIs (`chrome.storage.local`, `Image`, DOM).
 - `louvre.js`: CSV parsing of `Results.csv` and the Louvre collections API.
 - `met.js`: The Met Collection API (ID list search + object lookup).
+- `rijks.js`: Rijksmuseum data services (Linked Art search + object lookup).
 - `picker.js`: random choice, recent-history and `"<source>:<id>"` key helpers.
 - `Results.csv`: Louvre export. **Never edit it**; the user drops in fresh Louvre exports. Keep it
   Louvre-only; other museums' lists are fetched separately.
@@ -39,8 +41,12 @@ a random painting from the Musée du Louvre or The Met. See README.md for the us
 - Chrome focuses the address bar when a new tab opens, so keys only reach the page after the user
   clicks it. Extensions can't take focus from the omnibox on a new tab override; headless
   Playwright tests don't show this because they send keys to the page directly.
-- Met IDs are cached in storage (`metIds`, `metFetchedAt`, `metListId`) for a week. `met.LIST_ID`
-  describes the search; change it whenever the Met filters change so caches refresh immediately.
+- Museums with API-fetched lists (`FETCHED_SOURCES`: Met, Rijksmuseum) also export `LIST_ID` and
+  `fetchPaintingIds()`. Lists are cached in storage as `lists[source] = { ids, fetchedAt, listId }`
+  for a week, refreshed in the background (not awaited) after the first painting is shown.
+  `LIST_ID` describes the search; change it whenever a museum's filters change so caches refresh
+  immediately. Adding a museum: new module + `SOURCES`, `FETCHED_SOURCES` if API-listed, manifest
+  `host_permissions`, tests, README.
 - Storage written by older versions must keep working (e.g. `next` without `key` is ignored).
 
 ## Data sources: hard-won facts
@@ -60,7 +66,22 @@ a random painting from the Musée du Louvre or The Met. See README.md for the us
   sampling). About 1,678 IDs. Docs: https://metmuseum.github.io/
 - Met images: only `primaryImage` (full resolution, up to ~8 MB) is sharp enough for full screen;
   `primaryImageSmall` is ~600 px. Non-public-domain works have an empty `primaryImage`.
-- Neither API exposes anything usable to detect nudity (checked; only free-text descriptions).
+- **Rijksmuseum**: the old keyed API (`www.rijksmuseum.nl/api/...`) returns 410. Use the keyless
+  Linked Art services: search at `https://data.rijksmuseum.nl/search/collection` (100 per page,
+  follow `next.id` page tokens; ~49 pages, ~6 s) with `type=painting&imageAvailable=true&
+  memberOfSetId=https://id.rijksmuseum.nl/260239` ("Entire Public Domain Set"): about 4,884 IDs.
+  There is no "on display" filter or set. Objects: `https://id.rijksmuseum.nl/<id>` with
+  `Accept: application/ld+json` (no redirect, CORS `*`). Docs: https://data.rijksmuseum.nl/docs/
+- Rijksmuseum records: image is the IIIF `access_point` under `subject_of[].digitally_carried_by`
+  whose licence mentions `publicdomain`; the IIIF server resizes (`/full/!2400,2400/`), so don't
+  load `/full/max/` (several MB). Titles/dates/credit come in Dutch and English (pick by Getty AAT
+  language). Artist: prefer the production's worded attribution ("workshop of …", "attributed to
+  …"); workshop/attributed works have no `carried_out_by`. `notation` can be a single object
+  instead of a list. Some titles exist only in Dutch; a few records are the backs of paintings.
+  Page link: `https://www.rijksmuseum.nl/en/collection/<object number>`.
+- Neither the Louvre nor the Met exposes anything usable to detect nudity (checked; only free-text
+  descriptions). The Louvre has no "highlight" flag; bibliography and image counts correlate with
+  fame.
 
 ## Development
 

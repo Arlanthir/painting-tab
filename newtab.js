@@ -1,25 +1,22 @@
 import * as louvre from "./louvre.js";
 import * as met from "./met.js";
+import * as rijks from "./rijks.js";
 import { parseKey, pickRandom, remember, toKeys } from "./picker.js";
 
 const MAX_ATTEMPTS = 4;
-const MET_IDS_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
-const SOURCES = { [louvre.SOURCE]: louvre, [met.SOURCE]: met };
+const LIST_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+const SOURCES = { [louvre.SOURCE]: louvre, [met.SOURCE]: met, [rijks.SOURCE]: rijks };
+// Museums whose painting lists come from their APIs and are cached, unlike the Louvre's CSV.
+const FETCHED_SOURCES = [met, rijks];
 
 const $ = (id) => document.getElementById(id);
 const storage = globalThis.chrome?.storage?.local;
 
 async function loadState() {
-  if (!storage) return { next: null, recent: [], metIds: [], metFetchedAt: 0, metListId: "" };
-  const {
-    next = null,
-    recent = [],
-    metIds = [],
-    metFetchedAt = 0,
-    metListId = "",
-  } = await storage.get(["next", "recent", "metIds", "metFetchedAt", "metListId"]);
+  if (!storage) return { next: null, recent: [], lists: {} };
+  const { next = null, recent = [], lists = {} } = await storage.get(["next", "recent", "lists"]);
   // Paintings prepared by older versions have no key; ignore them.
-  return { next: next?.key ? next : null, recent, metIds, metFetchedAt, metListId };
+  return { next: next?.key ? next : null, recent, lists };
 }
 
 function saveState(state) {
@@ -40,18 +37,31 @@ async function loadLouvreKeys() {
   return toKeys(louvre.SOURCE, louvre.paintingArks(louvre.parseCsv(await res.text())));
 }
 
-/** Refreshes the cached list of Met paintings when it is missing, outdated or older than a week. */
-async function refreshMetIds(state) {
-  const fresh = Date.now() - state.metFetchedAt < MET_IDS_MAX_AGE;
-  if (state.metIds.length && state.metListId === met.LIST_ID && fresh) return;
-  try {
-    state.metIds = await met.fetchPaintingIds();
-    state.metFetchedAt = Date.now();
-    state.metListId = met.LIST_ID;
-    await saveState({ metIds: state.metIds, metFetchedAt: state.metFetchedAt, metListId: state.metListId });
-  } catch (err) {
-    console.warn(err);
-  }
+/**
+ * Refreshes each fetched museum's cached painting list (`lists[source] = { ids, fetchedAt, listId }`)
+ * when it is missing, was made with different filters, or is older than a week.
+ */
+async function refreshLists(state) {
+  // Older versions cached the Met list under these keys.
+  storage?.remove(["metIds", "metFetchedAt", "metListId"]);
+  await Promise.all(
+    FETCHED_SOURCES.map(async (source) => {
+      const cached = state.lists[source.SOURCE];
+      const fresh =
+        cached?.ids.length &&
+        cached.listId === source.LIST_ID &&
+        Date.now() - cached.fetchedAt < LIST_MAX_AGE;
+      if (fresh) return;
+      try {
+        const ids = await source.fetchPaintingIds();
+        const list = { ids, fetchedAt: Date.now(), listId: source.LIST_ID };
+        state.lists = { ...state.lists, [source.SOURCE]: list };
+        await saveState({ lists: state.lists });
+      } catch (err) {
+        console.warn(err);
+      }
+    }),
+  );
 }
 
 /** Fetches random paintings from the museums' APIs until one has an image, skipping recent ones. */
@@ -149,8 +159,11 @@ async function prepareNext(keys, state) {
 async function main() {
   const louvreKeys = await loadLouvreKeys();
   const state = await loadState();
-  // Read lazily so the Met list joins the pool as soon as it has been fetched.
-  const keys = () => [...louvreKeys, ...toKeys(met.SOURCE, state.metIds)];
+  // Read lazily so fetched lists join the pool as soon as they arrive.
+  const keys = () => [
+    ...louvreKeys,
+    ...FETCHED_SOURCES.flatMap((source) => toKeys(source.SOURCE, state.lists[source.SOURCE]?.ids ?? [])),
+  ];
 
   // Paintings shown in this tab, oldest first, for going back and forward. Not persisted, so each
   // tab starts with its own empty history.
@@ -173,7 +186,9 @@ async function main() {
   const first = await show(keys, state, state.next);
   if (first) position = history.push(first) - 1;
   updateControls();
-  await refreshMetIds(state);
+  // In the background: listing the Rijksmuseum takes several seconds and shouldn't hold up the
+  // next painting.
+  refreshLists(state);
   let preparing = prepareNext(keys, state);
 
   let showing = false;
