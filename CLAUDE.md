@@ -105,6 +105,10 @@ user-facing overview.
   When not on the newest painting, ↻ crossfades to → (both glyphs are stacked in `#shuffle`, the
   `.forward` class picks one). Before this, ↻ lived inside the card (to the right, in a column on
   the left, then on its own row); all were replaced by this layout. A bottom-right layout with ↻ on the left was tried and reverted.
+- Only show freely reusable (public-domain / open-access) images from every museum, even where an
+  API would serve copyrighted ones. The user confirmed this; for the Rijksmuseum it excludes ~40
+  copyrighted works (mostly 20th-century). Keep both the search filter and the per-object licence
+  check.
 - Keep the README up to date when behaviour or data sources change.
 - Keep this file up to date too: update it when the architecture, data sources, API behaviour or
   the user's preferences change, or when something non-obvious is discovered. Correct or remove
