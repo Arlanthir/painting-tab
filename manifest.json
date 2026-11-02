@@ -13,5 +13,8 @@
     "newtab": "newtab.html"
   },
   "permissions": ["storage"],
-  "host_permissions": ["https://collections.louvre.fr/*"]
+  "host_permissions": [
+    "https://collections.louvre.fr/*",
+    "https://collectionapi.metmuseum.org/*"
+  ]
 }

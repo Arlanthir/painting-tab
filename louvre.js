@@ -1,6 +1,8 @@
 // Helpers for the Louvre collection export (Results.csv) and the Louvre collections API,
 // kept free of browser APIs so they can be tested in Node.
 
+export const SOURCE = "louvre";
+export const MUSEUM = "Musée du Louvre, Paris";
 export const PAINTINGS_DEPARTMENT = "Département des Peintures";
 
 const arkUrl = (arkId) => `https://collections.louvre.fr/ark:/53355/${arkId}`;
@@ -65,7 +67,8 @@ export function toPainting(record) {
   if (!image) return null;
   const creator = record.creator?.find((c) => !c.linkType) ?? record.creator?.[0];
   return {
-    arkId: record.arkId,
+    key: `${SOURCE}:${record.arkId}`,
+    museum: MUSEUM,
     title: record.title,
     artist: creator?.label ?? "",
     date: (record.displayDateCreated ?? "").replace(/^[^:]*:\s*/, "").replace(/^\((.*)\)$/, "$1"),

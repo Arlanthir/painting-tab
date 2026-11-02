@@ -1,7 +1,9 @@
 # Painting Tab — A random painting in every new tab
 
 A Chrome extension that replaces the new tab page with a random painting from the
-[Louvre's collections](https://collections.louvre.fr/), with its title, artist and date.
+[Musée du Louvre](https://collections.louvre.fr/) or
+[The Metropolitan Museum of Art](https://www.metmuseum.org/art/collection), with its museum,
+title, artist and date.
 
 ## Install
 
@@ -11,12 +13,22 @@ A Chrome extension that replaces the new tab page with a random painting from th
 
 ## How it works
 
-- `Results.csv` is an export of the Louvre collections search filtered to paintings on display at
-  the Louvre. Only rows from the Département des Peintures are used (2,881 paintings).
-- Each new tab picks one at random, skipping the last 50 shown, and fetches its title, artist,
-  date and image from the Louvre's public per-object API (`<ark url>.json`).
-- The next tab's painting is fetched and its image preloaded in advance, so it appears instantly.
-- Hover the caption in the bottom-left corner to see details; ↻ shows another painting.
+Paintings come from two lists, and each new tab picks uniformly across both:
+
+- **Louvre:** `Results.csv` is an export of the Louvre collections search, filtered to paintings on
+  display at the Louvre. Only rows from the Département des Peintures are used (2,881 paintings).
+- **The Met:** objects of type "Paintings" on view with open-access images, across all departments
+  (about 1,700), fetched from [The Met Collection API](https://metmuseum.github.io/) and cached for
+  a week. The open-access filter (`openAccess=true`) is undocumented but matches the "Has open
+  access image" filter on the Met's website.
+
+Each new tab skips the last 50 paintings shown and fetches the chosen painting's details and image
+from its museum's API (the Louvre's `<ark url>.json` or the Met's `/objects/<id>`). Paintings without
+a downloadable image, such as works still under copyright at the Met, are skipped. The next
+painting is fetched and its image preloaded in advance, so it appears instantly, both in the next
+new tab and when pressing ↻.
+
+Hover the caption in the bottom-left corner to see details; ↻ shows another painting.
 
 ## Development
 
@@ -24,7 +36,8 @@ A Chrome extension that replaces the new tab page with a random painting from th
 npm test   # unit tests
 ```
 
-To refresh the list, export new results from the Louvre collections search and replace
-`Results.csv`.
+To refresh the Louvre list, export new results from the Louvre collections search and replace
+`Results.csv`. Keep it a Louvre-only export; the Met list is fetched separately.
 
-Images © GrandPalaisRmn (musée du Louvre); credits are shown with each painting.
+Louvre images © GrandPalaisRmn (musée du Louvre); Met images are public domain (CC0). Credits are
+shown with each painting.

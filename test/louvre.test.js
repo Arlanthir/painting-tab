@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { fetchPainting, paintingArks, parseCsv, pickImage, toPainting } from "../collection.js";
+import { fetchPainting, paintingArks, parseCsv, pickImage, toPainting } from "../louvre.js";
 
 const csv = `﻿ARK;"Object name/Title";Author;Collection
 cl1;"Le ""Grand"" tableau";"Un ; Deux";"Département des Peintures"
@@ -61,7 +61,8 @@ const record = {
 
 test("toPainting extracts the details the page shows", () => {
   assert.deepEqual(toPainting(record), {
-    arkId: "cl010062370",
+    key: "louvre:cl010062370",
+    museum: "Musée du Louvre, Paris",
     title: "La Joconde",
     artist: "Léonard de Vinci",
     date: "1e quart du XVIe siècle (1503 - 1519)",
