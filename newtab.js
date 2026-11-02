@@ -87,6 +87,7 @@ function render(painting) {
   document.body.classList.add("loaded");
 }
 
+/** Shows a new painting, using the prepared one when possible. Returns it, or null on failure. */
 async function show(keys, state, prepared) {
   // A prepared painting can be the one already on screen if it was not replaced in time.
   if (prepared && prepared.key !== state.current) {
@@ -95,7 +96,7 @@ async function show(keys, state, prepared) {
       render(prepared);
       state.current = prepared.key;
       state.recent = remember(state.recent, prepared.key);
-      return;
+      return prepared;
     } catch (err) {
       console.warn(err);
     }
@@ -108,12 +109,13 @@ async function show(keys, state, prepared) {
       await loadImage(painting.image);
       render(painting);
       state.current = painting.key;
-      return;
+      return painting;
     } catch (err) {
       console.warn(err);
     }
   }
   $("status").textContent = "Couldn't reach the museums' collections. Check your connection.";
+  return null;
 }
 
 /**
@@ -137,26 +139,69 @@ async function main() {
   // Read lazily so the Met list joins the pool as soon as it has been fetched.
   const keys = () => [...louvreKeys, ...toKeys(met.SOURCE, state.metIds)];
 
-  await show(keys, state, state.next);
+  // Paintings shown in this tab, oldest first, for going back and forward. Not persisted, so each
+  // tab starts with its own empty history.
+  const history = [];
+  let position = -1;
+
+  const first = await show(keys, state, state.next);
+  if (first) position = history.push(first) - 1;
   await refreshMetIds(state);
   let preparing = prepareNext(keys, state);
 
   let showing = false;
-  $("shuffle").addEventListener("click", async () => {
+  /** Runs one navigation at a time; input arriving meanwhile is dropped. */
+  async function navigate(action) {
     if (showing) return;
     showing = true;
     try {
+      await action();
+    } finally {
+      showing = false;
+    }
+  }
+
+  async function revisit(painting) {
+    await loadImage(painting.image);
+    render(painting);
+    state.current = painting.key;
+  }
+
+  const forward = () =>
+    navigate(async () => {
+      if (position < history.length - 1) {
+        await revisit(history[++position]);
+        return;
+      }
       // Wait for a painting still being prepared rather than fetching another one from scratch.
       await preparing;
       // Re-read storage: other tabs may have used and replaced the prepared painting.
       const { next, recent } = await loadState();
       state.recent = recent;
       document.body.classList.remove("loaded");
-      await show(keys, state, next);
-    } finally {
-      showing = false;
+      const painting = await show(keys, state, next);
+      if (painting) position = history.push(painting) - 1;
+      preparing = prepareNext(keys, state);
+    });
+
+  const back = () =>
+    navigate(async () => {
+      if (position > 0) await revisit(history[--position]);
+    });
+
+  $("shuffle").addEventListener("click", forward);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+    // Space on the focused ↻ button already clicks it.
+    if (event.key === " " && event.target instanceof HTMLButtonElement) return;
+    if (event.key === " " || event.key === "ArrowRight") {
+      event.preventDefault();
+      forward();
+    } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      back();
     }
-    preparing = prepareNext(keys, state);
   });
 }
 

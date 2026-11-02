@@ -26,6 +26,14 @@ a random painting from the Musée du Louvre or The Met. See README.md for the us
 - One prepared painting (`next` in `chrome.storage.local`) is shared by new tabs and the ↻ button
   in every tab; whoever uses it prepares a replacement and preloads its image. ↻ re-reads storage
   and waits for an in-flight preparation instead of fetching from scratch.
+- Keyboard: Space/→ = ↻, ← = previous painting. Each tab keeps an in-memory `history` with a
+  `position`; after going back, Space/→ step forward through history before showing new paintings.
+  History is not persisted, so new tabs start empty. Navigations are serialised (`navigate`), held
+  keys (`event.repeat`) and modifier combos are ignored, and Space on the focused ↻ button is left
+  to the native click to avoid advancing twice.
+- Chrome focuses the address bar when a new tab opens, so keys only reach the page after the user
+  clicks it. Extensions can't take focus from the omnibox on a new tab override; headless
+  Playwright tests don't show this because they send keys to the page directly.
 - Met IDs are cached in storage (`metIds`, `metFetchedAt`, `metListId`) for a week. `met.LIST_ID`
   describes the search; change it whenever the Met filters change so caches refresh immediately.
 - Storage written by older versions must keep working (e.g. `next` without `key` is ignored).

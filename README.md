@@ -30,6 +30,15 @@ new tab and when pressing ↻.
 
 Hover the caption in the bottom-left corner to see details; ↻ shows another painting.
 
+Keyboard shortcuts:
+
+- **Space** or **→**: show another painting (or move forward again after going back).
+- **←**: go back to the previous painting shown in this tab. Each tab keeps its own history, which
+  starts empty.
+
+Chrome puts the keyboard focus in the address bar when a new tab opens, so click anywhere on the
+painting first for the shortcuts to work.
+
 ## Development
 
 ```sh
