@@ -96,6 +96,10 @@ Museum Wien (KHM). See README.md for the user-facing overview.
 - Wikimedia: Node's default User-Agent gets 403 from the query service (browsers are fine; send a
   UA when testing from Node). The Commons API rate-limits bursts with 429, even ~1 request/s for a
   while; keep it to one request per painting, never batch-check the whole list at runtime.
+- **Peggy Guggenheim Collection** (Venice, `wd:Q1049033`): considered and not added. No API (its
+  site is HTML, photos © Guggenheim). Wikidata has only 34 of its paintings, 13 with a photo, and
+  just 5 of those pass the public-domain/≥ 1200 px check (checked 2026-11). Most of the collection
+  is still in copyright.
 - Neither the Louvre nor the Met exposes anything usable to detect nudity (checked; only free-text
   descriptions). The Louvre has no "highlight" flag; bibliography and image counts correlate with
   fame.

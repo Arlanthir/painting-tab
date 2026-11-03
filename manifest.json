@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Painting Tab — A random painting in every new tab",
+  "name": "Painting Tab: A museum painting in every new tab",
   "version": "1.0.0",
-  "description": "Shows a random painting from the Louvre museum on every new tab.",
+  "description": "Shows a random painting from a famous museum on every new tab.",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
